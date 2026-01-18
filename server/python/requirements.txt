@@ -1,0 +1,6 @@
+growwapi
+pandas
+numpy
+ta-lib
+psycopg2-binary
+python-dotenv
