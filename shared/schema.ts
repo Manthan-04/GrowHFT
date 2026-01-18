@@ -5,7 +5,7 @@ import { z } from "zod";
 import { users } from "./models/auth";
 
 // Re-export users for convenience if needed, but better to import from models/auth
-export { users } from "./models/auth";
+export { users, sessions } from "./models/auth";
 
 // === TABLE DEFINITIONS ===
 

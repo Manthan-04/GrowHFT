@@ -21,29 +21,26 @@ export async function registerRoutes(
     // Auth middleware usually handles this, but for explicit route
     if (!req.isAuthenticated()) return res.sendStatus(401);
     // In Replit Auth, req.user is populated. 
-    // We might need to map the UUID from auth table to our internal integer ID if we used integer IDs.
-    // However, shared/schema.ts uses Serial integer for 'users' table, but Replit Auth uses 'users' table with UUID in shared/models/auth.ts
-    // Wait, I created TWO users tables! One in shared/schema.ts and one in shared/models/auth.ts
-    // Replit Auth uses 'users' from shared/models/auth.ts (UUID).
-    // shared/schema.ts defined 'users' (Serial). This is a CONFLICT.
-    // I should probably have merged them or used the Auth one.
-    // Correction: I will use the Auth one for user identity and maybe extend it or just use it.
-    // For now, let's just return the auth user.
     res.json(req.user);
   });
 
-  /*
   app.patch(api.users.updateConfig.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    // This part is tricky because of the table conflict. 
-    // I will fix this by consolidating in a follow-up if needed, 
-    // but for now let's assume we store these in the Auth user table (I need to add columns to it via migration or just use a separate 'user_configs' table linked by UUID).
-    // Actually, I'll just skip this implementation detail for a moment and focus on the dashboard parts which might not strictly need the user config *in the DB* right away if we pass it to the Python engine.
-    // But we need to store it. 
-    // TODO: Fix User Table Conflict.
-    res.status(501).json({ message: "User config storage pending schema merge" });
+    
+    try {
+      const input = api.users.updateConfig.input.parse(req.body);
+      // req.user has claims, but we need the actual user ID from our DB (which matches sub)
+      const userId = (req.user as any).claims.sub; // or req.user.id if passport deserialized it that way. Replit Auth storage uses 'id' which IS the sub.
+      
+      const updatedUser = await storage.updateUserConfig(userId, input);
+      res.json(updatedUser);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      res.status(500).json({ message: "Failed to update config" });
+    }
   });
-  */
 
 
   // === STRATEGIES ===

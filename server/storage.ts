@@ -43,10 +43,16 @@ export class DatabaseStorage implements IStorage {
     return undefined; // Not implemented for now
   }
 
-  // async updateUserConfig(id: string, config: { growwApiKey?: string; growwApiSecret?: string }): Promise<User> {
-    // Requires schema update to users table
-  //  return undefined as any;
-  // }
+  async updateUserConfig(id: string, config: { growwApiKey?: string; growwApiSecret?: string }): Promise<User> {
+    const [updated] = await db.update(users)
+      .set({
+        ...config,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return updated;
+  }
 
   async createStrategy(strategy: InsertStrategy): Promise<Strategy> {
     const [newStrategy] = await db.insert(strategies).values(strategy).returning();

@@ -26,7 +26,18 @@ export const api = {
         401: errorSchemas.internal, // Not authenticated
       },
     },
-    // updateConfig removed for now until schema update
+    updateConfig: {
+      method: 'PATCH' as const,
+      path: '/api/users/config',
+      input: z.object({
+        growwApiKey: z.string().optional(),
+        growwApiSecret: z.string().optional(),
+      }),
+      responses: {
+        200: z.custom<typeof users.$inferSelect>(),
+        400: errorSchemas.validation,
+      },
+    },
   },
 
   // Strategy Management
