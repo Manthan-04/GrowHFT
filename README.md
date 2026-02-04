@@ -1,533 +1,310 @@
-<<<<<<< HEAD
-# GrowHFT
-High Frequency trading platform.
-=======
-# 🚀 High Frequency Trading (HFT) Dashboard
+# HFT Trading API
 
-A professional-grade algorithmic trading system for the **Indian Stock Market (NSE/BSE)** using the Groww trading platform. Features a modern React dashboard for real-time monitoring and a Python trading engine implementing world-famous trading strategies.
+A professional-grade **High Frequency Trading API** for the **Indian Stock Market (NSE/BSE)** using the Groww trading platform. Built entirely in Python with FastAPI.
 
-![Trading Dashboard](https://img.shields.io/badge/Status-Production%20Ready-green)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ---
 
-## 📋 Table of Contents
+## Features
 
-- [Features](#-features)
-- [Architecture](#-architecture)
-- [Trading Strategies](#-trading-strategies)
-- [Money Management](#-money-management)
-- [Technical Indicators](#-technical-indicators)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [API Reference](#-api-reference)
-- [Database Schema](#-database-schema)
-- [Usage](#-usage)
-- [Risk Disclaimer](#-risk-disclaimer)
+- **7 Professional Trading Strategies** - Battle-tested algorithms
+- **Multi-Strategy Voting System** - Reduces false signals
+- **Async Execution** - Non-blocking order execution
+- **Professional Money Management** - ATR-based position sizing
+- **RESTful API** - Full CRUD operations for strategies and trades
+- **Real-time Signals** - Get trading signals for any symbol
+- **Backtesting** - Test strategies on historical data
 
 ---
 
-## ✨ Features
+## Project Structure
 
-### Core Capabilities
-- **7 Professional Trading Strategies** - Battle-tested algorithms used by institutional traders
-- **Multi-Strategy Voting System** - Reduces false signals by requiring strategy consensus
-- **Real-time Dashboard** - Monitor trades, P&L, and strategy performance live
-- **Professional Money Management** - ATR-based position sizing, stop-loss, take-profit
-- **Multi-User Support** - Secure authentication with individual API key management
-- **Parallel Stock Trading** - Trade 10+ stocks simultaneously
-- **Async Execution** - Non-blocking order execution for speed
-
-### Dashboard Features
-- 📊 Real-time P&L tracking
-- 📈 Strategy performance metrics
-- 📉 Trade history with detailed analytics
-- ⚙️ Strategy configuration interface
-- 🔐 Secure API key management
-- 🌙 Professional dark theme
+```
+server/python/
+├── main.py              # FastAPI application entry point
+├── database.py          # SQLAlchemy models and connection
+├── schemas.py           # Pydantic request/response schemas
+├── engine.py            # Trading engine with async execution
+├── strategies.py        # 7 trading strategy implementations
+├── indicators.py        # Technical indicators (TA-Lib equivalent)
+├── money_management.py  # Risk management and position sizing
+├── config.py            # Configuration parameters
+└── requirements.txt     # Python dependencies
+```
 
 ---
 
-## 🏗 Architecture
+## Trading Strategies
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        FRONTEND (React)                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │  Dashboard  │  │  Strategies │  │   Trades    │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ REST API
-┌────────────────────────────┴────────────────────────────────────┐
-│                     BACKEND (Node.js/Express)                    │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │   Routes    │  │   Storage   │  │    Auth     │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-┌────────────────────────────┴────────────────────────────────────┐
-│                    TRADING ENGINE (Python)                       │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │ Strategies  │  │  Indicators │  │Money Manager│             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
-│                          │                                       │
-│                    ┌─────┴─────┐                                │
-│                    │ Groww API │                                │
-│                    └───────────┘                                │
-└─────────────────────────────────────────────────────────────────┘
-                             │
-┌────────────────────────────┴────────────────────────────────────┐
-│                      DATABASE (PostgreSQL)                       │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │    Users    │  │  Strategies │  │   Trades    │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
-└─────────────────────────────────────────────────────────────────┘
-```
+| # | Strategy | Description | Best For |
+|---|----------|-------------|----------|
+| 1 | **Moving Average Crossover** | Golden Cross/Death Cross trading | Trending markets |
+| 2 | **RSI Mean Reversion** | Buy oversold, sell overbought | Range-bound markets |
+| 3 | **MACD Strategy** | MACD/Signal line crossovers | Momentum trading |
+| 4 | **Bollinger Bands** | Mean reversion at bands | Volatile markets |
+| 5 | **VWAP Strategy** | Price crossing VWAP | Intraday trading |
+| 6 | **SuperTrend** | ATR-based trend following | Strong trends |
+| 7 | **Stochastic RSI** | Combined oscillator signals | Confirmation |
 
-### Technology Stack
-
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| Frontend | React 18, TypeScript, TailwindCSS, Shadcn/UI | User interface |
-| Backend | Node.js, Express, Drizzle ORM | API & data management |
-| Trading Engine | Python 3.11, TA-Lib, Pandas, NumPy | Strategy execution |
-| Database | PostgreSQL | Persistent storage |
-| Authentication | Replit Auth (OpenID Connect) | User management |
-| Trading API | Groww API | Market data & order execution |
-
----
-
-## 📈 Trading Strategies
-
-### 1. Moving Average Crossover (Golden Cross / Death Cross)
-
-The most popular trend-following strategy used by institutions worldwide.
-
-```
-Signal Logic:
-├── BUY:  Short MA crosses ABOVE Long MA (Golden Cross)
-└── SELL: Short MA crosses BELOW Long MA (Death Cross)
-
-Default Parameters:
-├── Short Window: 20 periods
-├── Long Window: 50 periods
-└── Type: SMA (can switch to EMA)
-```
-
-**Best For:** Trending markets, swing trading
-**Win Rate:** 45-55% with proper risk management
-
----
-
-### 2. RSI Mean Reversion
-
-Classic oscillator strategy exploiting overbought/oversold conditions.
-
-```
-Signal Logic:
-├── BUY:  RSI crosses below 30 (oversold)
-└── SELL: RSI crosses above 70 (overbought)
-
-Default Parameters:
-├── RSI Period: 14
-├── Overbought Level: 70
-└── Oversold Level: 30
-```
-
-**Best For:** Range-bound markets, mean reversion
-**Win Rate:** 50-60% in ranging conditions
-
----
-
-### 3. MACD Strategy
-
-Momentum indicator combining trend and oscillator characteristics.
-
-```
-Signal Logic:
-├── BUY:  MACD line crosses ABOVE Signal line
-└── SELL: MACD line crosses BELOW Signal line
-
-Default Parameters:
-├── Fast EMA: 12 periods
-├── Slow EMA: 26 periods
-└── Signal Line: 9 periods
-```
-
-**Best For:** Momentum trading, trend confirmation
-**Win Rate:** 40-50% (high reward-to-risk ratio)
-
----
-
-### 4. Bollinger Bands
-
-Volatility-based mean reversion strategy.
-
-```
-Signal Logic:
-├── BUY:  Price touches/crosses lower band
-└── SELL: Price touches/crosses upper band
-
-Default Parameters:
-├── Period: 20
-└── Standard Deviation: 2.0
-```
-
-**Best For:** Volatile markets, breakout confirmation
-**Win Rate:** 55-65% in ranging markets
-
----
-
-### 5. VWAP Strategy
-
-Institutional favorite for intraday trading.
-
-```
-Signal Logic:
-├── BUY:  Price crosses ABOVE VWAP + Volume confirmation
-└── SELL: Price crosses BELOW VWAP
-
-Default Parameters:
-└── Volume Threshold: 1.5x average
-```
-
-**Best For:** Intraday trading, institutional flow
-**Win Rate:** 50-55% with volume filter
-
----
-
-### 6. SuperTrend
-
-ATR-based trend-following indicator.
-
-```
-Signal Logic:
-├── BUY:  SuperTrend direction changes to bullish
-└── SELL: SuperTrend direction changes to bearish
-
-Default Parameters:
-├── ATR Period: 10
-└── Multiplier: 3.0
-```
-
-**Best For:** Strong trending markets
-**Win Rate:** 40-45% (high reward trades)
-
----
-
-### 7. Stochastic RSI
-
-Combined oscillator for stronger confirmation signals.
-
-```
-Signal Logic:
-├── BUY:  Both RSI < 30 AND Stochastic < 20
-└── SELL: Both RSI > 70 AND Stochastic > 80
-
-Default Parameters:
-├── RSI Period: 14
-└── Stochastic Period: 14
-```
-
-**Best For:** Confirmation signals, reducing false positives
-**Win Rate:** 55-60% (higher accuracy)
-
----
-
-### Multi-Strategy Voting System
+### Multi-Strategy Voting
 
 The engine combines signals from all active strategies using weighted voting:
 
 ```python
-Strategy Weights:
-├── Moving Average Crossover: 1.0
-├── EMA Crossover: 1.0
-├── RSI Mean Reversion: 0.8
-├── Bollinger Bands: 0.7
-├── MACD: 1.0
-├── VWAP: 0.9
-├── SuperTrend: 1.2
-└── Stochastic RSI: 0.8
+# Signal weights
+Moving Average: 1.0
+RSI: 0.8
+MACD: 1.0
+Bollinger: 0.7
+VWAP: 0.9
+SuperTrend: 1.2
+Stochastic RSI: 0.8
 
-Signal Threshold: 0.3 (30% agreement required)
+# Trade executed only if weighted signal > 0.3
 ```
-
-This approach significantly reduces false signals by requiring multiple strategy confirmation.
 
 ---
 
-## 💰 Money Management
-
-### Position Sizing (ATR-Based)
-
-```python
-Position Size = Risk Amount / (ATR × 2)
-
-Where:
-├── Risk Amount = Capital × 2% (max risk per trade)
-└── ATR = 14-period Average True Range
-```
-
-### Risk Controls
+## Money Management
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
 | Max Position Size | 2% | Maximum capital per trade |
 | Daily Loss Limit | 5% | Stop trading if exceeded |
-| Max Trades/Day | 50 | Per symbol limit |
 | Stop Loss | 2× ATR | Dynamic based on volatility |
 | Take Profit | 4× ATR | 2:1 reward-to-risk ratio |
 | Trailing Stop | 1% | Locks in profits |
 
-### Kelly Criterion
+---
 
-Optimal position sizing based on historical performance:
+## API Endpoints
 
-```python
-Kelly Fraction = (Win Rate × Avg Win - Loss Rate × Avg Loss) / Avg Win
+### Health
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | API status |
+| GET | `/health` | Health check |
 
-# We use Half-Kelly for safety
-Position Size = Kelly Fraction / 2
-```
+### Users
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users/{user_id}` | Get user |
+| POST | `/api/users` | Create user |
+| PATCH | `/api/users/{user_id}` | Update config (API keys) |
+
+### Strategies
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/strategies` | List all strategies |
+| GET | `/api/strategies/{id}` | Get strategy by ID |
+| POST | `/api/strategies` | Create new strategy |
+| PATCH | `/api/strategies/{id}` | Update strategy |
+| DELETE | `/api/strategies/{id}` | Delete strategy |
+
+### Trades
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/trades` | List trades (with filters) |
+| GET | `/api/trades/{id}` | Get trade by ID |
+| POST | `/api/trades` | Record new trade |
+
+### Trading Engine
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/engine/status` | Get engine status |
+| POST | `/api/engine/start` | Start trading engine |
+| POST | `/api/engine/stop` | Stop trading engine |
+| GET | `/api/engine/signals/{symbol}` | Get trading signal |
+| GET | `/api/engine/metrics` | Get risk metrics |
+
+### Market Data
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/symbols` | Get default symbols |
+| GET | `/api/market/{symbol}` | Get market data |
+
+### Backtest
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/backtest` | Run strategy backtest |
 
 ---
 
-## 📊 Technical Indicators
-
-All indicators are calculated using **TA-Lib** for maximum efficiency:
-
-| Indicator | Function | Usage |
-|-----------|----------|-------|
-| SMA | `calculate_sma()` | Trend identification |
-| EMA | `calculate_ema()` | Faster trend signals |
-| RSI | `calculate_rsi()` | Overbought/oversold |
-| MACD | `calculate_macd()` | Momentum |
-| Bollinger Bands | `calculate_bollinger_bands()` | Volatility |
-| ATR | `calculate_atr()` | Position sizing |
-| ADX | `calculate_adx()` | Trend strength |
-| Stochastic | `calculate_stochastic()` | Oscillator |
-| VWAP | `calculate_vwap()` | Fair value |
-| SuperTrend | `calculate_supertrend()` | Trend following |
-| Williams %R | `calculate_williams_r()` | Momentum |
-| Candlestick Patterns | `detect_candlestick_patterns()` | Pattern recognition |
-
----
-
-## 🔧 Installation
+## Installation
 
 ### Prerequisites
-
-- Node.js 18+
 - Python 3.11+
 - PostgreSQL 14+
-- Groww Trading Account with API access
+- Groww Trading Account (optional)
 
 ### Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/hft-trading-dashboard.git
-cd hft-trading-dashboard
-
-# Install Node.js dependencies
-npm install
-
-# Install Python dependencies
+# Navigate to Python directory
 cd server/python
+
+# Install dependencies
 pip install -r requirements.txt
 
-# Setup database
-npm run db:push
-
-# Start the application
-npm run dev
+# Run the server
+python main.py
 ```
+
+The API will be available at `http://localhost:5000`
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables
 
 ```env
-# Database
 DATABASE_URL=postgresql://user:pass@host:5432/dbname
-
-# Session
-SESSION_SECRET=your-secret-key
-
-# Trading (Optional - set in dashboard)
-GROWW_API_KEY=your-api-key
-GROWW_API_SECRET=your-api-secret
-INITIAL_CAPITAL=100000
+PORT=5000
+GROWW_API_KEY=your-api-key (optional)
+GROWW_API_SECRET=your-api-secret (optional)
 ```
 
-### Trading Configuration (`server/python/config.py`)
+### Trading Configuration (`config.py`)
 
 ```python
 # Risk Management
-MAX_POSITION_SIZE_PERCENT = 2.0    # Max 2% per trade
-MAX_DAILY_LOSS_PERCENT = 5.0       # Stop at 5% daily loss
-MAX_TRADES_PER_DAY = 50            # Trade limit
+MAX_POSITION_SIZE_PERCENT = 2.0
+MAX_DAILY_LOSS_PERCENT = 5.0
+MAX_TRADES_PER_DAY = 50
 
-# Stop Loss / Take Profit
-STOP_LOSS_PERCENT = 1.5
-TAKE_PROFIT_PERCENT = 3.0
-TRAILING_STOP_PERCENT = 1.0
+# Technical Indicators
+RSI_PERIOD = 14
+MACD_FAST = 12
+MACD_SLOW = 26
+BOLLINGER_PERIOD = 20
 
 # Market Hours (IST)
-MARKET_OPEN_HOUR = 9
-MARKET_OPEN_MINUTE = 15
-MARKET_CLOSE_HOUR = 15
-MARKET_CLOSE_MINUTE = 30
+MARKET_OPEN = 9:15 AM
+MARKET_CLOSE = 3:30 PM
 ```
 
-### Default Trading Symbols
+### Default Symbols (NSE)
 
 ```python
-DEFAULT_SYMBOLS = [
-    "RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK",
-    "HINDUNILVR", "SBIN", "BHARTIARTL", "KOTAKBANK", "ITC"
-]
+RELIANCE, TCS, HDFCBANK, INFY, ICICIBANK,
+HINDUNILVR, SBIN, BHARTIARTL, KOTAKBANK, ITC
 ```
 
 ---
 
-## 🔌 API Reference
+## Database Schema
+
+### Users
+```sql
+id VARCHAR PRIMARY KEY,
+email VARCHAR,
+first_name VARCHAR,
+last_name VARCHAR,
+groww_api_key VARCHAR,
+groww_api_secret VARCHAR,
+initial_capital FLOAT
+```
 
 ### Strategies
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/strategies` | Get all strategies |
-| GET | `/api/strategies/:id` | Get strategy by ID |
-| PATCH | `/api/strategies/:id` | Update strategy |
+```sql
+id SERIAL PRIMARY KEY,
+name VARCHAR NOT NULL,
+description TEXT,
+is_active BOOLEAN,
+parameters JSONB
+```
 
 ### Trades
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/trades` | Get user's trades |
-| POST | `/api/trades` | Record new trade |
-
-### User
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/auth/user` | Get current user |
-| PATCH | `/api/user/config` | Update API keys |
-
----
-
-## 🗄 Database Schema
-
-### Users Table
 ```sql
-CREATE TABLE users (
-    id VARCHAR PRIMARY KEY,
-    email VARCHAR,
-    first_name VARCHAR,
-    last_name VARCHAR,
-    profile_image_url VARCHAR,
-    groww_api_key VARCHAR,
-    groww_api_secret VARCHAR,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-);
-```
-
-### Strategies Table
-```sql
-CREATE TABLE strategies (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR NOT NULL,
-    description TEXT,
-    is_active BOOLEAN DEFAULT false,
-    parameters JSONB,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-### Trades Table
-```sql
-CREATE TABLE trades (
-    id SERIAL PRIMARY KEY,
-    user_id VARCHAR REFERENCES users(id),
-    symbol VARCHAR NOT NULL,
-    side VARCHAR NOT NULL,  -- 'BUY' or 'SELL'
-    quantity INTEGER NOT NULL,
-    price DECIMAL NOT NULL,
-    status VARCHAR NOT NULL,
-    timestamp TIMESTAMP DEFAULT NOW(),
-    strategy_id INTEGER REFERENCES strategies(id),
-    pnl DECIMAL
-);
+id SERIAL PRIMARY KEY,
+user_id VARCHAR REFERENCES users(id),
+symbol VARCHAR NOT NULL,
+side VARCHAR NOT NULL,
+quantity INTEGER NOT NULL,
+price VARCHAR NOT NULL,
+status VARCHAR NOT NULL,
+pnl VARCHAR,
+strategy_id INTEGER REFERENCES strategies(id)
 ```
 
 ---
 
-## 🚀 Usage
+## Usage Examples
 
-### Starting the Dashboard
+### Get Trading Signal
 
 ```bash
-npm run dev
+curl http://localhost:5000/api/engine/signals/RELIANCE
 ```
 
-Access at `http://localhost:5000`
+Response:
+```json
+{
+  "symbol": "RELIANCE",
+  "signal": 1,
+  "strategy_signals": {
+    "ma_crossover": 1,
+    "rsi": 0,
+    "macd": 1,
+    "supertrend": 1
+  },
+  "confidence": 0.75,
+  "current_price": 2450.50,
+  "suggested_quantity": 8,
+  "stop_loss": 2400.00,
+  "take_profit": 2550.00
+}
+```
 
-### Starting the Trading Engine
+### Start Trading Engine
 
 ```bash
-cd server/python
-python engine.py
+curl -X POST "http://localhost:5000/api/engine/start?user_id=user123"
 ```
 
-The engine will:
-1. Connect to the database
-2. Authenticate with Groww API
-3. Load active strategies
-4. Begin trading during market hours (9:15 AM - 3:30 PM IST)
+### Run Backtest
 
-### Simulation Mode
-
-If Groww API credentials are not provided, the engine runs in simulation mode with generated market data - perfect for testing strategies without real money.
+```bash
+curl -X POST http://localhost:5000/api/backtest \
+  -H "Content-Type: application/json" \
+  -d '{
+    "symbol": "RELIANCE",
+    "strategy": "ma_crossover",
+    "start_date": "2024-01-01",
+    "end_date": "2024-12-31",
+    "initial_capital": 100000
+  }'
+```
 
 ---
 
-## ⚠️ Risk Disclaimer
+## Simulation Mode
 
-**IMPORTANT: Trading involves substantial risk of loss and is not suitable for all investors.**
+If Groww API credentials are not provided, the engine runs in **simulation mode** with generated market data - perfect for testing strategies without real money.
+
+---
+
+## Risk Disclaimer
+
+**IMPORTANT: Trading involves substantial risk of loss.**
 
 - Past performance is not indicative of future results
 - Only trade with money you can afford to lose
-- This software is provided for educational purposes
-- The developers are not responsible for any trading losses
-- Always test strategies in simulation mode first
+- This software is for educational purposes
+- Test thoroughly in simulation mode first
 - Consult a financial advisor before live trading
 
 ---
 
-## 📄 License
+## License
 
 MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please read our contributing guidelines before submitting PRs.
-
----
-
-## 📞 Support
-
-- **Issues**: GitHub Issues
-- **Discussions**: GitHub Discussions
-
----
-
-*Built with ❤️ for the Indian Trading Community*
->>>>>>> 6ed51e6 (Add comprehensive design documentation to the README file)
+*Built for the Indian Trading Community*

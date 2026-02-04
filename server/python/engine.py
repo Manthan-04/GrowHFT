@@ -10,14 +10,13 @@ import logging
 from datetime import datetime, time
 from typing import Optional, Dict, List
 import pandas as pd
-import psycopg2
-from psycopg2.extras import RealDictCursor
 
 # Import our modules
 from config import *
 from strategies import MultiStrategyEngine, get_strategy
 from money_management import MoneyManager, RiskMetrics
 from indicators import calculate_atr
+from database import SessionLocal, Trade, Strategy, User
 
 # Setup logging
 logging.basicConfig(
@@ -44,14 +43,14 @@ class TradingEngine:
         self.strategy_engine = MultiStrategyEngine()
         self.is_running = False
         self.groww_client = None
-        self.db_conn = None
+        self.db_session = None
         self.active_strategies: List[str] = []
         self.symbols: List[str] = DEFAULT_SYMBOLS
         
     def connect_database(self):
-        """Connect to PostgreSQL database"""
+        """Connect to PostgreSQL database using SQLAlchemy"""
         try:
-            self.db_conn = psycopg2.connect(DATABASE_URL)
+            self.db_session = SessionLocal()
             logger.info("Connected to database")
         except Exception as e:
             logger.error(f"Database connection failed: {e}")
@@ -164,38 +163,41 @@ class TradingEngine:
             
     def record_trade(self, symbol: str, side: str, quantity: int, price: float, 
                      status: str, strategy_id: Optional[int] = None, pnl: Optional[float] = None):
-        """Record trade to database"""
+        """Record trade to database using SQLAlchemy"""
         try:
-            if self.db_conn is None:
+            if self.db_session is None:
                 return
                 
-            cursor = self.db_conn.cursor()
-            cursor.execute("""
-                INSERT INTO trades (user_id, symbol, side, quantity, price, status, strategy_id, pnl)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (self.user_id, symbol, side, quantity, str(price), status, strategy_id, str(pnl) if pnl else None))
-            
-            self.db_conn.commit()
-            cursor.close()
+            trade = Trade(
+                user_id=self.user_id,
+                symbol=symbol,
+                side=side,
+                quantity=quantity,
+                price=str(price),
+                status=status,
+                strategy_id=strategy_id,
+                pnl=str(pnl) if pnl else None
+            )
+            self.db_session.add(trade)
+            self.db_session.commit()
             
         except Exception as e:
             logger.error(f"Failed to record trade: {e}")
+            if self.db_session:
+                self.db_session.rollback()
             
     def load_active_strategies(self):
-        """Load active strategies from database"""
+        """Load active strategies from database using SQLAlchemy"""
         try:
-            if self.db_conn is None:
+            if self.db_session is None:
                 self.active_strategies = ['ma_crossover', 'rsi', 'macd', 'supertrend']
                 return
                 
-            cursor = self.db_conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute("SELECT * FROM strategies WHERE is_active = true")
-            strategies = cursor.fetchall()
-            cursor.close()
+            strategies = self.db_session.query(Strategy).filter(Strategy.is_active == True).all()
             
             self.active_strategies = []
             for s in strategies:
-                name = s['name'].lower().replace(' ', '_')
+                name = s.name.lower().replace(' ', '_')
                 # Map common names
                 if 'moving average' in name or 'ma' in name:
                     self.active_strategies.append('ma_crossover')
@@ -331,8 +333,8 @@ class TradingEngine:
                 current_price = data['close'].iloc[-1]
                 self.money_manager.close_position(symbol, current_price, "ENGINE_STOP")
                 
-        if self.db_conn:
-            self.db_conn.close()
+        if self.db_session:
+            self.db_session.close()
             
         logger.info("Trading engine stopped")
 
