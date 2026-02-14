@@ -11,8 +11,12 @@ from datetime import datetime
 from typing import List, Optional
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
@@ -100,8 +104,8 @@ app.add_middleware(
 # HEALTH
 # ======================================================================
 
-@app.get("/")
-async def root():
+@app.get("/api/status")
+async def api_status():
     return {
         "status": "running",
         "service": "HFT Trading API",
@@ -120,6 +124,11 @@ async def health_check():
 # ======================================================================
 # USERS
 # ======================================================================
+
+@app.get("/api/users", response_model=List[UserResponse])
+async def list_users(db: Session = Depends(get_db)):
+    return db.query(User).order_by(User.created_at.desc()).all()
+
 
 @app.get("/api/users/{user_id}", response_model=UserResponse)
 async def get_user(user_id: str, db: Session = Depends(get_db)):
@@ -434,6 +443,19 @@ async def run_backtest(request: BacktestRequest):
         max_drawdown=0, sharpe_ratio=0,
         profit_factor=gp / gl if gl > 0 else float('inf'), trades=trades,
     )
+
+
+# ======================================================================
+# FRONTEND — serve admin dashboard
+# ======================================================================
+
+STATIC_DIR = Path(__file__).parent / "static"
+
+
+@app.get("/dashboard")
+@app.get("/")
+async def serve_dashboard():
+    return FileResponse(STATIC_DIR / "index.html")
 
 
 # ======================================================================
